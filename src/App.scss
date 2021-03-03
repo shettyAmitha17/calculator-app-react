@@ -1,0 +1,49 @@
+$lightBackground: #FCFCFF;
+$clrWhite: #FFFFFF;
+$clrBlack: #000000;
+$clrPrimary: #FF4E50;
+$clrSecondary:#F9D423;
+$textClrPrimary: #222222;
+$textClrSecondary: #999999;
+$shadowClr: #00000033;
+.calculator-body {
+  max-width: 400px;
+  margin: auto;
+  background: $clrPrimary;
+	background: linear-gradient(to top, $clrPrimary, $clrSecondary);
+	color: $clrWhite;
+  .calculator-display {
+    >div:first-child {
+        height: 3em;
+        font-size: 2em;
+        @extend .d-flex;
+        @extend .justify-center;
+        align-items: center;
+        overflow: auto;
+        overflow-y: hidden;
+    }
+  }
+
+  
+  button {
+    width: 25%;
+    height: 60px;
+    font-size: 30px;
+    color: $clrWhite;
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to top, $clrPrimary, $clrSecondary);
+    border: 2px solid $clrWhite;
+    outline: none;
+  }
+  button:hover {
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+}
+.d-flex {
+  display: flex;
+}
+.justify-center {
+ justify-content: center;
+}
