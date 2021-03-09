@@ -2,39 +2,12 @@ import React, { Component } from 'react';
 import './App.scss';
 import OutputDisplayComponent from './components/OutputDisplay';
 import FormulaScreenComponent from './components/FormulaScreen';
-
+import * as math from 'mathjs';
 export function calcMe(str) {
-    const noWsStr = str.replace(/\s/g, '');
-    const operators = noWsStr.replace(/[\d.,]/g, '').split('');
-    const operands = noWsStr.replace(/[+/%*-]/g, ' ')
-        .replace(/\,/g, '.')
-        .split(' ')
-        .map(parseFloat)
-        .filter(it => it);
-
-   
-    while (operators.includes('*')) {
-        let opIndex = operators.indexOf('*');
-        operands.splice(opIndex, 2, operands[opIndex] * operands[opIndex + 1]);
-        operators.splice(opIndex, 1);
-    };
-    while (operators.includes('/')) {
-        let opIndex = operators.indexOf('/');
-        operands.splice(opIndex, 2, operands[opIndex] / operands[opIndex + 1]);
-        operators.splice(opIndex, 1);
-    };
-    while (operators.includes('%')) {
-        let opIndex = operators.indexOf('%');
-        operands.splice(opIndex, 2, operands[opIndex] % operands[opIndex + 1]);
-        operators.splice(opIndex, 1);
-    };
-
-    let result = operands[0];
-    for (let i = 0; i < operators.length; i++) {
-        operators[i] === '+' ? (result += operands[i + 1]) : (result -= operands[i + 1])
-    }
+    let result = math.evaluate(str)
+    result = math.format(result, { precision: 14 })
+    result = String(result)
     return result
-
 }
 
 class App extends Component {
@@ -42,45 +15,79 @@ class App extends Component {
         super();
 
         this.state = {
-            outputDisplay: ""
+            outputDisplay: "",
+            inputDisplay: "",
+            isResult: false
         }
     }
 
 
     handleOnClick = identifier => {
-        if (identifier === "=") {
-            this.calculate()
-        }
+        switch (identifier) {
+            case "=":
+                this.setState(
+                    { inputDisplay: this.state.outputDisplay,  isResult: true })
+                this.calculate()
+                break;
+            case "CE":
+                this.reset()
+                break;
+            case "C":
+                if (this.state.outputDisplay === 'error' || this.state.outputDisplay === 'undefined') {
+                    this.reset()
+                } else {
+                    this.backspace()
+                }
+                break;
+            case "undo":
+                if(!this.state.isResult) {
+                const operands = this.state.outputDisplay.split(/([+,/,%,*,-])/)
+                    .filter(it => it);
+                if (operands.length > 0) {
+                    this.setState({
+                        outputDisplay: this.state.outputDisplay.replace(operands[operands.length - 1], '')
+                    })
+                }
+            }
+                break;
+            case "sin": case "cos": case "tan":
+                this.setState({
+                    inputDisplay: `${identifier}(${this.state.outputDisplay})`,
+                    isResult: true
+                })
+                try {
+                    const result = String(math[identifier](math.evaluate(this.state.outputDisplay)))
+                    this.setState({
+                        outputDisplay: result
+                    })
+                } catch (e) {
+                    this.setState({
+                        outputDisplay: "error"
+                    })
 
-        else if (identifier === "CE") {
-            this.reset()
-        }
-        else if (identifier === "C") {
-            this.backspace()
-        }
-
-        else {
-            this.setState({
-                outputDisplay: this.state.outputDisplay + identifier
-            })
+                }
+                break;
+            default:
+                let result = this.state.outputDisplay + identifier;
+                if (this.state.outputDisplay === 'error' || this.state.outputDisplay === 'undefined') {
+                    result = identifier
+                }
+                this.setState({
+                    outputDisplay: result,
+                    isResult: false
+                })
+                break;
+            // code block
         }
     };
 
 
     calculate = () => {
-        var checkResult = ''
-        if(this.state.outputDisplay.includes('--')){
-            checkResult = this.state.outputDisplay.replace('--','+')
-        }
-
-        else {
-            checkResult = this.state.outputDisplay
-        }
-
+        var checkResult = this.state.outputDisplay;
         try {
             this.setState({
                 // eslint-disable-next-line
-                outputDisplay: (eval(checkResult) || "" ) + ""
+                outputDisplay: (calcMe(checkResult) || "") + ""
             })
         } catch (e) {
             this.setState({
@@ -92,13 +99,16 @@ class App extends Component {
 
     reset = () => {
         this.setState({
-            outputDisplay: ""
+            outputDisplay: "",
+            inputDisplay: "",
+            isResult: false
         })
     };
 
     backspace = () => {
         this.setState({
-            outputDisplay: this.state.outputDisplay.slice(0, -1)
+            outputDisplay: this.state.outputDisplay.slice(0, -1),
+            isResult: false
         })
     };
 
@@ -107,7 +117,7 @@ class App extends Component {
             <div>
                 <h1 className="d-flex justify-center">Calculator</h1>
                 <div className="calculator-body">
-                    <OutputDisplayComponent output={this.state.outputDisplay} />
+                    <OutputDisplayComponent output={this.state.outputDisplay} input={this.state.inputDisplay} />
                     <FormulaScreenComponent onClick={this.handleOnClick} />
                 </div>
             </div>

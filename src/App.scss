@@ -6,25 +6,34 @@ $clrSecondary:#F9D423;
 $textClrPrimary: #222222;
 $textClrSecondary: #999999;
 $shadowClr: #00000033;
+
 .calculator-body {
   max-width: 400px;
   margin: auto;
   background: $clrPrimary;
-	background: linear-gradient(to top, $clrPrimary, $clrSecondary);
-	color: $clrWhite;
+  background: linear-gradient(to top, $clrPrimary, $clrSecondary);
+  color: $clrWhite;
+
   .calculator-display {
+    >div {
+      height: 2em;
+      @extend .d-flex;
+      align-items: center;
+      overflow: auto;
+      overflow-y: hidden;
+    }
     >div:first-child {
-        height: 3em;
-        font-size: 2em;
-        @extend .d-flex;
-        @extend .justify-center;
-        align-items: center;
-        overflow: auto;
-        overflow-y: hidden;
+      font-size: 20px;
+      transition-delay: 1s;
+      justify-content: flex-start;
+    }
+    >div:nth-child(2) {
+      @extend .justify-center;
+      font-size: 2em;
     }
   }
 
-  
+
   button {
     width: 25%;
     height: 60px;
@@ -35,15 +44,24 @@ $shadowClr: #00000033;
     border: 2px solid $clrWhite;
     outline: none;
   }
+
   button:hover {
     background: rgba(255, 255, 255, 0.4);
     cursor: pointer;
     transition: background 0.3s;
   }
+
+  img {
+    width: 20px;
+  }
 }
+
 .d-flex {
   display: flex;
 }
+
 .justify-center {
- justify-content: center;
+  justify-content: center;
 }
+
+
